@@ -10,7 +10,10 @@ export const metadata: Metadata = {
   title: "GAMAKAY Cards - Portal to escape your gaming shackles",
   description:
     "Get instant access to your favorite gaming platforms with our digital gift cards. Fast, secure, and ready to use in minutes.",
-    generator: 'v0.dev'
+icons: {
+
+    icon: "public/images/CONTROLLER_CTA.png"
+  }
 }
 
 export default function RootLayout({
