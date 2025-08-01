@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Get instant access to your favorite gaming platforms with our digital gift cards. Fast, secure, and ready to use in minutes.",
 icons: {
 
-    icon: "public/images/CONTROLLER_CTA.png"
+    icon: "/images/CONTROLLER_CTA.png"
   }
 }
 
