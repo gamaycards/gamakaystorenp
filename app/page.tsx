@@ -1,659 +1,847 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Gamepad2, Gift, Star, Zap, CreditCard, Shield, Truck } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { motion, useInView, useScroll, useTransform } from "framer-motion"
+import { 
+  Gamepad2, Gift, Star, Zap, CreditCard, Shield, Truck, 
+  ChevronDown, Sparkles, Trophy, Users, Clock, CheckCircle,
+  ArrowRight, MousePointer2, Download, Heart, Play, ChevronRight,
+  ShoppingCart, MessageCircle
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
-import { fetchPlatforms, checkPlatformAvailability } from "@/lib/api"
 import PurchaseModal from "@/components/purchase-modal"
-import LoadingScreen from "@/components/loading-screen"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { GameController } from "@/components/game-controller"
-import { useTheme } from "next-themes"
 import { products } from "@/lib/products"
-import { ProductCard } from "@/components/product-card"
 
-export default function HomePage() {
-  const [selectedAmount, setSelectedAmount] = useState(50)
-  const [selectedPlatform, setSelectedPlatform] = useState("Steam")
-  const [platforms, setPlatforms] = useState<any[]>([])
-  const [isLoadingPlatforms, setIsLoadingPlatforms] = useState(true)
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
-  const { theme } = useTheme()
 
-  useEffect(() => {
-    loadPlatforms()
-  }, [])
+// This platformsData declaration removed to avoid duplication
 
-  const loadPlatforms = async () => {
-    setIsLoadingPlatforms(true)
-    try {
-      const response = await fetchPlatforms()
-      if (response.success && response.data) {
-        setPlatforms(response.data)
-        setSelectedPlatform(response.data[0]?.name || "Steam")
-      }
-    } catch (error) {
-      console.error("Failed to load platforms:", error)
-    } finally {
-      setIsLoadingPlatforms(false)
-    }
-  }
-
-  const handlePlatformSelect = async (platformName: string) => {
-    setIsCheckingAvailability(true)
-    setSelectedPlatform(platformName)
-
-    try {
-      const response = await checkPlatformAvailability(platformName)
-      if (response.success && !response.data) {
-        // Platform unavailable - could show a message
-        console.log(`${platformName} is currently unavailable`)
-      }
-    } catch (error) {
-      console.error("Failed to check platform availability:", error)
-    } finally {
-      setIsCheckingAvailability(false)
-    }
-  }
-
-  const giftCardAmounts = [5, 10, 15, 20, 50, 100]
-
-  // Dynamic background based on theme
-  const backgroundClass =
-    theme === "dark"
-      ? "min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black"
-      : "min-h-screen bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500"
+// Apple-style hero component with massive typography and fluid animations
+const AppleHero = () => {
+  const { scrollY } = useScroll()
+  const y = useTransform(scrollY, [0, 800], [0, -200])
+  const scale = useTransform(scrollY, [0, 800], [1, 0.8])
+  const opacity = useTransform(scrollY, [0, 400], [1, 0])
 
   return (
-    <div className={backgroundClass}>
-      {/* Header */}
-      <motion.header
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="relative z-10 bg-white/10 backdrop-blur-md border-b border-white/20"
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-black">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-yellow-900" />
+      
+      {/* Fluid animated background elements */}
+      <motion.div
+        style={{ y }}
+        className="absolute inset-0"
       >
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Image src="/images/gamakay-logo.jpg" alt="GAMAKAY CARDS" width={50} height={50} className="rounded-lg" />
-            <div>
-              <h1 className="text-2xl font-bold text-white">GAMAKAY</h1>
-              <p className="text-white/80 text-sm">CARDS</p>
-            </div>
-          </div>
-          <nav className="hidden md:flex items-center space-x-6">
-            <a href="#" className="text-white hover:text-white/80 transition-colors">
-              Gift Cards
-            </a>
-            <a href="#" className="text-white hover:text-white/80 transition-colors">
-              Support
-            </a>
-            <a href="#" className="text-white hover:text-white/80 transition-colors">
-              Account
-            </a>
-            <div className="flex items-center space-x-2">
-              <GameController />
-              <ThemeToggle />
-            </div>
-          </nav>
-          <div className="md:hidden flex items-center space-x-2">
-            <GameController />
-            <ThemeToggle />
-          </div>
-        </div>
-      </motion.header>
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-500/20 rounded-full filter blur-3xl"
+        />
+        <motion.div
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.4, 0.7, 0.4],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-yellow-600/20 rounded-full filter blur-3xl"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-white/5 to-transparent rounded-full"
+        />
+      </motion.div>
 
-      {/* Hero Section - Compact for above-the-fold visibility */}
-      <section className="relative py-8 md:py-12 lg:py-16 overflow-hidden min-h-[calc(100vh-80px)] flex items-center">
-        <div className="container mx-auto px-4 md:px-8 text-center w-full">
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="max-w-6xl mx-auto"
-          >
-            {/* Hero Text */}
-            <div className="mb-6 md:mb-8">
-              {/* First line */}
+        style={{ scale, opacity }}
+        className="relative z-10 text-center max-w-7xl mx-auto px-4"
+      >
+                        {/* Pre-headline */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-3 md:mb-4 leading-tight px-4"
+          transition={{ duration: 1, delay: 0.2 }}
+          className="mb-6 relative z-20"
               >
-                Portal to escape your
+          <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/15 backdrop-blur-xl border border-white/30 text-white text-xs sm:text-sm font-medium shadow-lg">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-yellow-400" />
+            New Gaming Experience
+          </span>
               </motion.div>
 
-              {/* Second line with theme-aware shimmer */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="relative py-3 px-8 overflow-visible mb-4 md:mb-6"
-              >
+                {/* Main headline - Fluid Apple style */}
                 <motion.h1
-                  className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r ${
-                    theme === "dark"
-                      ? "from-blue-600 via-purple-400 via-pink-300 via-purple-400 to-blue-600"
-                      : "from-gray-300 via-white via-gray-100 via-white to-gray-300"
-                  } bg-[length:300%_100%] leading-tight pb-2`}
-                  style={{
-                    backgroundImage:
-                      theme === "dark"
-                        ? "linear-gradient(90deg, #2563eb 0%, #a855f7 25%, #f9a8d4 50%, #a855f7 75%, #2563eb 100%)"
-                        : "linear-gradient(90deg, #d1d5db 0%, #ffffff 25%, #f3f4f6 50%, #ffffff 75%, #d1d5db 100%)",
-                  }}
+          initial={{ opacity: 0, y: 50, scale: 0.8 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ 
+            duration: 1.2, 
+            delay: 0.4,
+            ease: [0.25, 0.46, 0.45, 0.94]
+          }}
+          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white mb-4 leading-none"
+        >
+          <motion.span
                   animate={{
-                    backgroundPosition: ["300% 50%", "0% 50%"],
+              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                   }}
                   transition={{
-                    duration: 3,
-                    repeat: Number.POSITIVE_INFINITY,
+              duration: 8,
+              repeat: Infinity,
                     ease: "linear",
                   }}
+            className="bg-gradient-to-r from-yellow-400 via-white to-yellow-400 bg-[length:200%_auto] bg-clip-text text-transparent"
                 >
-                  GAMING SHACKLES
+            GAMAKAY
+          </motion.span>
                 </motion.h1>
-              </motion.div>
-            </div>
 
-            {/* Subtitle */}
-            <motion.p
-              className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 md:mb-8 max-w-4xl mx-auto px-4 leading-relaxed"
+        {/* Secondary headline */}
+        <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-            >
-              Get instant access to your favorite gaming platforms with our digital gift cards. Fast, secure, and ready
-              to use in minutes.
-            </motion.p>
-
-            {/* Feature Badges */}
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 1 }}
-              className="flex flex-wrap justify-center gap-3 md:gap-4"
-            >
-              <div className="flex items-center space-x-2 md:space-x-3 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 md:px-6 md:py-3">
-                <Zap className={`w-5 h-5 md:w-6 md:h-6 ${theme === "dark" ? "text-blue-300" : "text-yellow-300"}`} />
-                <span className="text-white font-semibold text-sm md:text-lg">Instant Delivery</span>
-              </div>
-              <div className="flex items-center space-x-2 md:space-x-3 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 md:px-6 md:py-3">
-                <Shield className="w-5 h-5 md:w-6 md:h-6 text-green-300" />
-                <span className="text-white font-semibold text-sm md:text-lg">100% Secure</span>
-              </div>
-              <div className="flex items-center space-x-2 md:space-x-3 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 md:px-6 md:py-3">
-                <Star className={`w-5 h-5 md:w-6 md:h-6 ${theme === "dark" ? "text-purple-300" : "text-blue-300"}`} />
-                <span className="text-white font-semibold text-sm md:text-lg">Best Prices</span>
-              </div>
+          transition={{ duration: 1, delay: 0.8 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 mb-4 leading-tight">
+            Giftcards.
+          </h2>
+          <p className="text-lg sm:text-xl md:text-2xl text-white/70 max-w-3xl mx-auto leading-relaxed">
+            Experience gaming like never before with our premium digital gift cards.
+          </p>
             </motion.div>
 
-            {/* Controller CTA Card (moved here) */}
+                
+
+        {/* Feature highlights with fluid animations */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.2 }}
-              className="flex justify-center mt-8"
+              transition={{ duration: 1, delay: 1.2 }}
+              className="mt-6 mb-16 flex flex-wrap justify-center gap-4 sm:gap-6 text-white/60"
             >
+              {[
+                { icon: Zap, text: "Instant delivery", color: "text-yellow-400" },
+                { icon: Shield, text: "100% secure", color: "text-green-400" },
+                { icon: Users, text: "Trusted by 1K+", color: "text-purple-400" }
+              ].map((feature, index) => (
               <motion.div
-                animate={{
-                  y: [0, 10, 0],
-                }}
+                  key={feature.text}
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{
-                  duration: 2,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                }}
-                className="cursor-pointer group"
-                onClick={() => {
-                  document.getElementById('popular-platforms')?.scrollIntoView({ 
-                    behavior: 'smooth' 
-                  });
-                }}
-              >
-                <div className="relative">
-                  {/* Minimalist Controller CTA */}
-                  <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl border-2 border-white/30 flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
-                    <img 
-                      src="/images/CONTROLLER_CTA.png" 
-                      alt="Controller Scroll CTA" 
-                      className="w-16 h-16 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                  {/* Pointing Arrow */}
-                  <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
+                    duration: 0.6, 
+                    delay: 1.2 + index * 0.2,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    y: -5,
+                    transition: { duration: 0.2 }
+                  }}
+                  className="flex items-center space-x-2 cursor-pointer"
+                >
                     <motion.div
                       animate={{
-                        y: [0, 5, 0],
+                      rotate: [0, -10, 10, 0],
                       }}
                       transition={{
-                        duration: 1.5,
-                        repeat: Number.POSITIVE_INFINITY,
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: index * 0.5,
+                    }}
+                  >
+                    <feature.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${feature.color}`} />
+                  </motion.div>
+                  <span className="text-xs sm:text-sm">{feature.text}</span>
+                    </motion.div>
+              ))}
+              </motion.div>
+            </motion.div>
+
+      {/* Controller CTA - Compact positioning */}
+      <div className="absolute bottom-6 sm:bottom-8 left-0 right-0 flex justify-center z-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+          className="flex flex-col items-center space-y-1"
+        >
+          <motion.div
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="relative cursor-pointer group"
+          >
+            <Image
+              src="/images/CONTROLLER_CTA.png"
+              alt="Gaming Controller"
+              width={60}
+              height={60}
+              priority={false}
+              loading="lazy"
+              className="object-contain group-hover:scale-110 transition-transform duration-300 sm:w-16 sm:h-16"
+            />
+            <div className="absolute inset-0 bg-yellow-500/15 rounded-full filter blur-lg animate-pulse will-change-transform" />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2.5 }}
+            className="text-white/60 text-xs sm:text-sm text-center font-medium whitespace-nowrap"
+          >
+            Scroll to explore
+          </motion.p>
+          </motion.div>
+        </div>
+
+      </section>
+  )
+}
+
+
+
+// Clean, minimalist features section
+const AppleFeatures = () => {
+  const features = [
+    {
+      title: "Instant Delivery",
+      headline: "Fast that lasts.",
+      description: "Get your gift card codes delivered to your email within minutes of purchase.",
+      icon: <Zap className="w-6 h-6" />
+    },
+    {
+      title: "100% Secure", 
+      headline: "Beautiful and secure, by design.",
+      description: "All transactions are encrypted and protected with industry-standard security.",
+      icon: <Shield className="w-6 h-6" />
+    },
+    {
+      title: "24/7 Support",
+      headline: "Innovation in value.",
+      description: "Our customer support team is available around the clock to help you.",
+      icon: <Truck className="w-6 h-6" />
+    }
+  ]
+
+  return (
+    <div className="bg-white">
+      {features.map((feature, index) => (
+        <FeatureSection key={feature.title} feature={feature} index={index} />
+      ))}
+    </div>
+  )
+}
+
+// Individual feature section component
+const FeatureSection = ({ feature, index }: any) => {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, amount: 0.3 })
+  const isEven = index % 2 === 0
+
+  return (
+    <section ref={ref} className="py-24">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${isEven ? '' : 'lg:grid-flow-col-dense'}`}>
+          <motion.div
+            initial={{ opacity: 0, x: isEven ? -50 : 50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8 }}
+            className={`${isEven ? 'lg:order-1' : 'lg:order-2'}`}
+          >
+            {/* Icon */}
+            <div className="mb-8">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+                <div className="text-blue-600">{feature.icon}</div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="text-sm font-medium text-gray-900 mb-4">
+              {feature.title}
+            </div>
+            
+            {/* Headline */}
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              {feature.headline}
+            </h2>
+            
+            {/* Description */}
+            <p className="text-lg text-gray-600 leading-relaxed mb-8">
+              {feature.description}
+            </p>
+            
+            {/* Learn more button - only show for first two cards */}
+            {index < 2 && (
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-base font-medium">
+                Learn more
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            )}
+          </motion.div>
+
+          {/* Empty white rectangular card */}
+          <motion.div
+            initial={{ opacity: 0, x: isEven ? 50 : -50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className={`${isEven ? 'lg:order-2' : 'lg:order-1'}`}
+          >
+            <div className="relative">
+              <div className="w-full h-96 bg-white rounded-3xl shadow-lg border border-gray-200"></div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Platform data with discount percentages
+const platformsData = [
+  {
+    id: 'steam',
+    name: 'Steam',
+    icon: '/images/STEAM.svg',
+    discount: '15% OFF',
+    description: 'The ultimate gaming platform',
+    color: 'text-blue-400'
+  },
+  {
+    id: 'playstation',
+    name: 'PlayStation',
+    icon: '/images/PLAYSTATION.svg',
+    discount: '10% OFF',
+    description: 'Console gaming redefined',
+    color: 'text-blue-500'
+  },
+  {
+    id: 'xbox',
+    name: 'Xbox',
+    icon: '/images/XBOX.svg',
+    discount: '8% OFF',
+    description: 'Power your dreams',
+    color: 'text-green-400'
+  },
+  {
+    id: 'nintendo',
+    name: 'Nintendo',
+    icon: '/images/NINTENDO.svg',
+    discount: '12% OFF',
+    description: 'Switch your gaming',
+    color: 'text-red-400'
+  },
+  {
+    id: 'epic',
+    name: 'Epic Games',
+    icon: '/images/EPICGAMES.svg',
+    discount: '14% OFF',
+    description: 'Epic gaming adventures',
+    color: 'text-gray-300'
+  },
+  {
+    id: 'apple',
+    name: 'Apple',
+    icon: '/images/APPLE.svg',
+    discount: '7% OFF',
+    description: 'Gaming. Elevated.',
+    color: 'text-blue-300'
+  }
+]
+
+// Gift card denominations
+const giftCardAmounts = {
+  steam: [
+    { value: 5, price: 425, originalPrice: 500 },
+    { value: 10, price: 850, originalPrice: 1000 },
+    { value: 20, price: 1700, originalPrice: 2000 },
+    { value: 50, price: 4250, originalPrice: 5000 },
+    { value: 100, price: 8500, originalPrice: 10000 }
+  ],
+  playstation: [
+    { value: 5, price: 450, originalPrice: 500 },
+    { value: 10, price: 900, originalPrice: 1000 },
+    { value: 25, price: 2250, originalPrice: 2500 },
+    { value: 50, price: 4500, originalPrice: 5000 },
+    { value: 100, price: 9000, originalPrice: 10000 }
+  ],
+  xbox: [
+    { value: 5, price: 460, originalPrice: 500 },
+    { value: 10, price: 920, originalPrice: 1000 },
+    { value: 25, price: 2300, originalPrice: 2500 },
+    { value: 50, price: 4600, originalPrice: 5000 },
+    { value: 100, price: 9200, originalPrice: 10000 }
+  ],
+  nintendo: [
+    { value: 5, price: 440, originalPrice: 500 },
+    { value: 10, price: 880, originalPrice: 1000 },
+    { value: 25, price: 2200, originalPrice: 2500 },
+    { value: 50, price: 4400, originalPrice: 5000 },
+    { value: 100, price: 8800, originalPrice: 10000 }
+  ],
+  epic: [
+    { value: 5, price: 430, originalPrice: 500 },
+    { value: 10, price: 860, originalPrice: 1000 },
+    { value: 25, price: 2150, originalPrice: 2500 },
+    { value: 50, price: 4300, originalPrice: 5000 },
+    { value: 100, price: 8600, originalPrice: 10000 }
+  ],
+  apple: [
+    { value: 5, price: 465, originalPrice: 500 },
+    { value: 15, price: 1395, originalPrice: 1500 },
+    { value: 25, price: 2325, originalPrice: 2500 },
+    { value: 50, price: 4650, originalPrice: 5000 },
+    { value: 100, price: 9300, originalPrice: 10000 }
+  ]
+}
+
+// Pricing Section Component
+const PricingSection = () => {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const [selectedPlatform, setSelectedPlatform] = useState<any>(null)
+  const [selectedAmount, setSelectedAmount] = useState<any>(null)
+  const [showPlatformSelection, setShowPlatformSelection] = useState(false)
+  const [showAmountSelection, setShowAmountSelection] = useState(false)
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
+
+  const handlePlatformSelect = (platform: any) => {
+    setSelectedPlatform(platform)
+    setShowAmountSelection(true)
+    // Auto-select the $100 amount by default
+    const amounts = giftCardAmounts[platform.id as keyof typeof giftCardAmounts]
+    const defaultAmount = amounts?.find(a => a.value === 100) || amounts?.[amounts.length - 1]
+    setSelectedAmount(defaultAmount || null)
+  }
+
+  const handleAmountSelect = (amount: any) => {
+    setSelectedAmount(amount)
+    setIsPurchaseModalOpen(true)
+  }
+
+  const handleBack = () => {
+    if (showAmountSelection) {
+      setShowAmountSelection(false)
+      setSelectedPlatform(null)
+    } else if (showPlatformSelection) {
+      setShowPlatformSelection(false)
+    }
+  }
+
+  const handleWhatsApp = (platform: any, amount: any) => {
+    const message = `Hi! I'm interested in purchasing ${platform.name} $${amount?.value || 'custom'} for ₹${amount?.price}. Please provide more details.`
+    const url = `https://wa.me/9862157864?text=${encodeURIComponent(message)}`
+    window.open(url, '_blank')
+  }
+
+    return (
+    <section ref={ref} className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        {!showAmountSelection ? (
+          // Platform Selection Screen
+              <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-7xl mx-auto"
+          >
+            {/* Large Platform Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+              {[
+                {
+                  id: 'steam',
+                  name: 'Steam Gift Cards',
+                  description: 'Choose Your Amount! Available in $5, $10, and custom amounts.',
+                  icon: '/images/STEAM.svg',
+                  discount: '15% OFF'
+                },
+                {
+                  id: 'playstation',
+                  name: 'PlayStation Gift Cards',
+                  description: 'PlayStation Gift Cards INR - Choose Your Amount!',
+                  icon: '/images/PLAYSTATION.svg',
+                  discount: '10% OFF'
+                },
+                {
+                  id: 'xbox',
+                  name: 'Xbox Gift Cards',
+                  description: 'Xbox Gift Cards - Choose Your Amount!',
+                  icon: '/images/XBOX.svg',
+                  discount: '8% OFF'
+                },
+                {
+                  id: 'nintendo',
+                  name: 'Nintendo Gift Cards',
+                  description: 'Nintendo Gift Cards - Choose Your Amount!',
+                  icon: '/images/NINTENDO.svg',
+                  discount: '12% OFF'
+                },
+                {
+                  id: 'epic',
+                  name: 'Epic Games Gift Cards',
+                  description: 'Epic Games Gift Cards - Choose Your Amount!',
+                  icon: '/images/EPICGAMES.svg',
+                  discount: '14% OFF'
+                },
+                {
+                  id: 'apple',
+                  name: 'iTunes Gift Cards (Apple App Store)',
+                  description: 'Game codes in 10 mins! Easy redemption with hassle-free guides.',
+                  icon: '/images/APPLE.svg',
+                  discount: '7% OFF'
+                }
+              ].map((platform, index) => (
+                <motion.div
+                  key={platform.id}
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ 
+                    duration: 0.8, 
+                    delay: index * 0.1,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    y: -10,
+                    transition: { duration: 0.3 }
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handlePlatformSelect({ id: platform.id, name: platform.name, icon: platform.icon, discount: platform.discount })}
+                  className="bg-white rounded-2xl p-8 cursor-pointer transition-all duration-300 hover:bg-gray-50 border-2 shadow-lg hover:shadow-2xl border-gray-200 hover:border-gray-300 relative overflow-hidden group"
+                >
+                  {/* Floating animation background */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 0.8 }}
+                  />
+                  <div className="text-center">
+                    <motion.div 
+                      className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-2xl flex items-center justify-center"
+                      whileHover={{ 
+                        scale: 1.1,
+                        rotate: [0, -5, 5, 0],
+                        transition: { duration: 0.3 }
+                      }}
+                    >
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.05, 1],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <Image
+                          src={platform.icon}
+                          alt={platform.name}
+                          width={48}
+                          height={48}
+                          className="w-12 h-12 object-contain"
+                        />
+                      </motion.div>
+                    </motion.div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{platform.name}</h3>
+                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">{platform.description}</p>
+                    <motion.span 
+                      className="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium"
+                      whileHover={{ 
+                        scale: 1.05,
+                        transition: { duration: 0.2 }
+                      }}
+                      animate={{
+                        scale: [1, 1.02, 1],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
                         ease: "easeInOut",
                       }}
                     >
-                      <svg 
-                        width="24" 
-                        height="24" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        className="text-white/80"
-                      >
-                        <path 
-                          d="M7 10L12 15L17 10" 
-                          stroke="currentColor" 
-                          strokeWidth="2" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </motion.div>
+                      {platform.discount}
+                    </motion.span>
                   </div>
-                </div>
-              </motion.div>
-            </motion.div>
-
-
-          </motion.div>
-        </div>
-
-        {/* Floating Gaming Icons */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute text-white/10 text-6xl"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -20, 0],
-                rotate: [0, 360],
-              }}
-              transition={{
-                duration: 10 + i * 2,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "linear",
-              }}
-            >
-              <Gamepad2 />
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Popular Platforms */}
-      <section id="popular-platforms" className="py-16 bg-white/5 backdrop-blur-sm">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h3 className="text-4xl font-bold text-white mb-4">Popular Gaming Platforms</h3>
-            <p className="text-white/80 text-lg">Choose from the most popular gaming platforms</p>
-          </motion.div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {platforms.map((game, index) => (
-              <motion.div
-                key={game.name}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="cursor-pointer"
-                onClick={() => handlePlatformSelect(game.name)}
-              >
-                <Card
-                  className={`bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300 ${
-                    selectedPlatform === game.name
-                      ? theme === "dark"
-                        ? "ring-2 ring-blue-400"
-                        : "ring-2 ring-yellow-300"
-                      : ""
-                  }`}
-                >
-                  <CardContent className="p-6 text-center">
-                    <div className="mb-3 flex justify-center">
-                      {game.icon.startsWith('/') ? (
-                        <img 
-                          src={game.icon} 
-                          alt={game.name} 
-                          className="w-12 h-12 object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <span className="text-4xl">{game.icon}</span>
-                      )}
-                    </div>
-                    <h4 className="font-semibold text-white mb-2">{game.name}</h4>
-                    <Badge
-                      variant="secondary"
-                      className={theme === "dark" ? "bg-blue-400 text-blue-900" : "bg-yellow-400 text-yellow-900"}
-                    >
-                      {game.discount}% OFF
-                    </Badge>
-                  </CardContent>
-                </Card>
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Gift Card Selection */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+          </motion.div>
+        ) : (
+          // Amount Selection Screen
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
             className="max-w-4xl mx-auto"
           >
             <div className="text-center mb-12">
-              <h3 className="text-4xl font-bold text-white mb-4">Choose Your Amount</h3>
-              <p className="text-white/80 text-lg">Select the perfect gift card value</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                Choose Your Amount
+              </h2>
+              <p className="text-gray-600 text-lg">
+                Select the perfect gift card value
+              </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-              {giftCardAmounts.map((amount) => (
+            <div className="flex justify-center items-center mb-12">
+              <div className="flex flex-wrap justify-center gap-4 max-w-4xl">
+                {giftCardAmounts[selectedPlatform?.id as keyof typeof giftCardAmounts]?.map((amount, index) => (
                 <motion.div
-                  key={amount}
-                  whileHover={{ scale: 1.05 }}
+                    key={amount.value}
+                    initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                      duration: 0.6, 
+                      delay: index * 0.1,
+                      ease: [0.25, 0.46, 0.45, 0.94]
+                    }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      y: -5,
+                      transition: { duration: 0.2 }
+                    }}
                   whileTap={{ scale: 0.95 }}
-                  className="cursor-pointer"
                   onClick={() => setSelectedAmount(amount)}
-                >
-                  <Card
-                    className={`bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300 ${
-                      selectedAmount === amount
-                        ? theme === "dark"
-                          ? "ring-2 ring-blue-400 bg-white/20"
-                          : "ring-2 ring-yellow-300 bg-white/20"
-                        : ""
+                    className={`bg-white rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:bg-gray-50 border-2 shadow-lg hover:shadow-xl min-w-[120px] ${
+                      selectedAmount?.value === amount.value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
                     }`}
                   >
-                    <CardContent className="p-6 text-center">
-                      <div className="text-3xl font-bold text-white mb-2">${amount}</div>
-                      <div className="text-white/60 text-sm">Gift Card</div>
-                    </CardContent>
-                  </Card>
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-gray-900 mb-1">
+                        ${amount.value}
+                      </div>
+                      <div className="text-xs text-gray-500">Gift Card</div>
+                    </div>
                 </motion.div>
               ))}
+              </div>
             </div>
 
+            {/* Gift Card Preview */}
+            {selectedAmount && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20"
-            >
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center space-x-4">
-                  <div
-                    className={`w-16 h-16 rounded-xl flex items-center justify-center ${
-                      theme === "dark"
-                        ? "bg-gradient-to-br from-blue-500 to-purple-600"
-                        : "bg-gradient-to-br from-yellow-400 to-orange-500"
-                    }`}
-                  >
-                    {selectedPlatform === "Steam" ? (
-                      <img 
-                        src="/images/STEAM.svg" 
-                        alt="Steam" 
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="bg-gradient-to-r from-blue-50 to-indigo-100 rounded-2xl p-6 mb-8 max-w-md mx-auto border border-blue-200 shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <Image
+                        src={selectedPlatform?.icon}
+                        alt={selectedPlatform?.name}
+                        width={20}
+                        height={20}
+                        className="w-5 h-5 object-contain"
                       />
-                    ) : selectedPlatform === "PlayStation" ? (
-                      <img 
-                        src="/images/PLAYSTATION.svg" 
-                        alt="PlayStation" 
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : selectedPlatform === "Xbox" ? (
-                      <img 
-                        src="/images/XBOX.svg" 
-                        alt="Xbox" 
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : selectedPlatform === "Nintendo" ? (
-                      <img 
-                        src="/images/NINTENDO.svg" 
-                        alt="Nintendo" 
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : selectedPlatform === "Epic Games" ? (
-                      <img 
-                        src="/images/EPICGAMES.svg" 
-                        alt="Epic Games" 
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : selectedPlatform === "Apple" ? (
-                      <img 
-                        src="/images/APPLE.svg" 
-                        alt="Apple" 
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <Gift className="w-8 h-8 text-white" />
-                    )}
                   </div>
                   <div>
-                    <h4 className="text-2xl font-bold text-white">{selectedPlatform} Gift Card</h4>
-                    <p className="text-white/80">Digital delivery in minutes</p>
+                      <h3 className="text-gray-900 font-bold text-lg">
+                        {selectedPlatform?.name} Gift Card
+                      </h3>
+                      <p className="text-gray-600 text-sm">Digital delivery in minutes</p>
+                    </div>
                   </div>
+                  <div className="text-right">
+                    <div className="text-gray-900 font-bold text-3xl">
+                      ${selectedAmount.value}
                 </div>
-                <div className="text-center md:text-right">
-                  <div className="text-3xl font-bold text-white mb-2">${selectedAmount}</div>
                   <Button
-                    size="lg"
-                    className={`font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-                      theme === "dark"
-                        ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
-                        : "bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
-                    }`}
-                    onClick={() => setIsPurchaseModalOpen(true)}
-                    disabled={isCheckingAvailability}
-                  >
-                    <CreditCard className="w-5 h-5 mr-2" />
-                    {isCheckingAvailability ? "Checking..." : "Buy Now"}
+                      onClick={() => handleAmountSelect(selectedAmount)}
+                      className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm"
+                    >
+                      <ShoppingCart className="w-3 h-3 mr-1" />
+                      Buy Now
                   </Button>
                 </div>
               </div>
             </motion.div>
-          </motion.div>
-        </div>
-      </section>
+            )}
 
-      {/* Features */}
-      <section className="py-16 bg-white/5 backdrop-blur-sm">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h3 className="text-4xl font-bold text-white mb-4">Why Choose GAMAKAY Cards?</h3>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Zap,
-                title: "Instant Delivery",
-                description: "Get your gift card codes delivered to your email within minutes of purchase.",
-              },
-              {
-                icon: Shield,
-                title: "100% Secure",
-                description: "All transactions are encrypted and protected with industry-standard security.",
-              },
-              {
-                icon: Truck,
-                title: "24/7 Support",
-                description: "Our customer support team is available around the clock to help you.",
-              },
-            ].map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -10 }}
+            <div className="text-center">
+              <Button
+                onClick={handleBack}
+                variant="ghost"
+                className="text-gray-600 hover:text-gray-900"
               >
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300 h-full">
-                  <CardHeader className="text-center">
-                    <div
-                      className={`w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 ${
-                        theme === "dark"
-                          ? "bg-gradient-to-br from-blue-500 to-purple-600"
-                          : "bg-gradient-to-br from-yellow-400 to-orange-500"
-                      }`}
-                    >
-                      <feature.icon className="w-8 h-8 text-white" />
-                    </div>
-                    <CardTitle className="text-white text-xl">{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-white/80 text-center">{feature.description}</CardDescription>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Gift Card Products */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h3 className="text-4xl font-bold text-white mb-4">Available Gift Cards</h3>
-            <p className="text-white/80 text-lg">Choose from our selection of popular gaming gift cards</p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {products.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-black/20 backdrop-blur-sm py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-6">
-            <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <Image src="/images/gamakay-logo.jpg" alt="GAMAKAY CARDS" width={40} height={40} className="rounded-lg" />
-              <div>
-                <h4 className="text-white font-bold">GAMAKAY CARDS</h4>
-                <p className="text-white/60 text-sm">Level up your gaming</p>
-              </div>
+                ← Back to Platforms
+              </Button>
             </div>
-            <div className="text-white/60 text-sm">© 2025 GAMAKAY Cards. All rights reserved.</div>
+          </motion.div>
+        )}
+
+                {/* Purchase Modal */}
+        {isPurchaseModalOpen && selectedPlatform && selectedAmount && (
+          <PurchaseModal
+            isOpen={isPurchaseModalOpen}
+            onClose={() => {
+              setIsPurchaseModalOpen(false)
+              setSelectedPlatform(null)
+              setSelectedAmount(null)
+              setShowPlatformSelection(false)
+              setShowAmountSelection(false)
+            }}
+            platform={selectedPlatform.name}
+            amount={selectedAmount.value}
+          />
+        )}
+        </div>
+      </section>
+  )
+}
+
+export default function HomePage() {
+  const [selectedAmount, setSelectedAmount] = useState(50)
+  const [selectedPlatform, setSelectedPlatform] = useState("Steam")
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
+
+  return (
+          <motion.div
+      className="min-h-screen bg-white"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+    >
+
+      {/* Apple-style Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Image 
+              src="/images/gamakay-logo.jpg" 
+              alt="GAMAKAY" 
+              width={32} 
+              height={32} 
+              className="rounded-lg" 
+            />
+            <div>
+              <h1 className="text-lg font-semibold text-white">GAMAKAY</h1>
+              <p className="text-xs text-white/60">Cards</p>
+                    </div>
           </div>
           
-          {/* Refund Guarantee & Disclaimer */}
-          <div className="border-t border-white/10 pt-6">
-            <div className="text-center">
-              <p className="text-white/70 text-sm font-medium mb-2">
-                We offer a comprehensive refund guarantee in event of any product or service issues
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="#platforms" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
+              Platforms
+            </a>
+            <a href="#features" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
+              Features
+            </a>
+            <a href="#support" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
+              Support
+            </a>
+            <div className="flex items-center space-x-3 ml-4">
+              <GameController />
+        </div>
+          </nav>
+          
+          <div className="md:hidden flex items-center space-x-2">
+            <GameController />
+          </div>
+        </div>
+      </header>
+
+            {/* Apple Hero */}
+      <AppleHero />
+
+      {/* Pricing Section */}
+      <PricingSection />
+
+      {/* Apple Features */}
+      <AppleFeatures />
+
+      {/* Apple-style Footer */}
+      <footer className="bg-gray-50 border-t border-gray-200 py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center space-x-3 mb-6">
+                <Image 
+                  src="/images/gamakay-logo.jpg" 
+                  alt="GAMAKAY" 
+                  width={40} 
+                  height={40} 
+                  className="rounded-xl" 
+                />
+              <div>
+                  <h3 className="text-2xl font-bold text-gray-900">GAMAKAY</h3>
+                  <p className="text-gray-600">Cards</p>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-8 text-lg leading-relaxed max-w-md">
+                Your trusted partner for premium gaming gift cards. Instant delivery, secure transactions, unbeatable prices.
               </p>
-              <div className="text-white/50 text-xs max-w-4xl mx-auto leading-relaxed">
-                <p className="mb-1">
-                  <strong>Disclaimer:</strong> No refunds if buyer fails to check region compatibility. 
-                  Receipt required before delivery (screenshot or confirmation). 
-                  All sales are final. No replacements after delivery unless issues arise.
-                </p>
+              <div className="flex space-x-6">
+                <div className="flex items-center space-x-2 text-gray-500">
+                  <Users className="w-5 h-5" />
+                  <span className="font-medium">1K+ Happy Customers</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-6 text-lg">Shop</h4>
+              <ul className="space-y-4 text-gray-600">
+                <li><a href="#platforms" className="hover:text-gray-900 transition-colors">Platforms</a></li>
+                <li><a href="#features" className="hover:text-gray-900 transition-colors">Features</a></li>
+                <li><a href="#support" className="hover:text-gray-900 transition-colors">Support</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-6 text-lg">Contact</h4>
+              <ul className="space-y-4 text-gray-600">
+                <li>📱 9862157864</li>
+                <li>💬 WhatsApp Support</li>
+                <li>📞 Viber Available</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-200 mt-12 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-500 text-sm mb-4 md:mb-0">
+                © 2024 GAMAKAY Cards. All rights reserved.
+              </p>
+              <div className="flex space-x-6 text-sm text-gray-500">
+                <a href="#" className="hover:text-gray-700 transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-gray-700 transition-colors">Terms of Service</a>
+                <a href="#" className="hover:text-gray-700 transition-colors">Legal</a>
               </div>
             </div>
           </div>
         </div>
       </footer>
 
-      <LoadingScreen
-        isVisible={isLoadingPlatforms}
-        title="Loading Platforms"
-        messages={[
-          "Fetching the best gaming platforms... 🎮",
-          "Checking platform availability... ✅",
-          "Loading your gaming options... 🎯",
-          "Almost ready to show you the goods... 🚀",
-        ]}
-        duration={2000}
-      />
-
-      <LoadingScreen
-        isVisible={isCheckingAvailability}
-        title="Checking Availability"
-        messages={[
-          "Verifying platform availability... 🔍",
-          "Making sure everything's ready... ⚡",
-          "Just a quick check... ✨",
-        ]}
-        duration={1000}
-      />
-
+      {/* Purchase Modal */}
       <PurchaseModal
         isOpen={isPurchaseModalOpen}
         onClose={() => setIsPurchaseModalOpen(false)}
         platform={selectedPlatform}
         amount={selectedAmount}
       />
-    </div>
+    </motion.div>
   )
 }
